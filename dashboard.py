@@ -27,6 +27,7 @@ top_pubs = (
 
 top_pubs = top_pubs.sort_values(by="Rank").head(5)
 
+st.subheader(":crown: Top Publishers")
 st.dataframe(top_pubs.rename(columns={'Global_Sales':'Global Sales (milions)'})[["Rank", "Publisher", "Global Sales (milions)"]], hide_index=True)
 
 
