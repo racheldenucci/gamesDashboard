@@ -4,7 +4,9 @@ import plotly_express as px
 import plotly.graph_objects as go
 import os
 
-st.set_page_config(page_icon=":video_game:", page_title="Video Game Sales Dashboard", layout='wide')
+st.set_page_config(
+    page_icon=":video_game:", page_title="Video Game Sales Dashboard", layout="wide"
+)
 st.title(":video_game: Video Game Sales")
 
 df = pd.read_csv(r"vgsales.csv", encoding="utf-8")
@@ -21,6 +23,13 @@ with col1:
         )[["Rank", "Game", "Publisher", "Global Sales (milions)"]],
         hide_index=True,
     )
+
+    top_gen = (
+        df.groupby(by="Genre").agg({"Rank": "min", "Global_Sales": "sum"}).reset_index()
+    )
+
+    top_gen=top_gen.sort_values(by='Rank').head(5)
+
 
 with col2:
     top_pubs = (
