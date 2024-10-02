@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly_express as px
 import plotly.graph_objects as go
 import os
@@ -14,45 +15,63 @@ df = pd.read_csv(r"vgsales.csv", encoding="utf-8")
 col1, col2 = st.columns(2)
 
 with col1:
-    top_5 = df.sort_values(by="Rank").head(5)
+    top_5 = (
+        df.groupby(by="Name")
+        .agg({"Global_Sales": "sum", "Rank": "min", "Publisher": "first"})
+        .reset_index()
+    )
+
+    top_5 = top_5.sort_values(by="Global_Sales", ascending=False).head(5)
+
+    top_5.index = np.arange(1, len(top_5) + 1)  # index starting from 1
 
     st.subheader(":crown: Top Global Sales")
     st.dataframe(
         top_5.rename(
             columns={"Name": "Game", "Global_Sales": "Global Sales (milions)"}
-        )[["Rank", "Game", "Publisher", "Global Sales (milions)"]],
-        hide_index=True,
+        )[["Game", "Publisher", "Global Sales (milions)"]],
     )
 
     top_gen = (
         df.groupby(by="Genre").agg({"Rank": "min", "Global_Sales": "sum"}).reset_index()
     )
 
-    top_gen=top_gen.sort_values(by='Rank').head(5)
+    top_gen = top_gen.sort_values(by="Rank").head(5)
 
 
 with col2:
-    top_pubs = (
-        df.groupby(by="Publisher")
-        .agg({"Rank": "min", "Name": "first", "Global_Sales": "sum"})
-        .reset_index()
+    # top_pubs = (
+    #     df.groupby(by="Publisher")
+    #     .agg({"Global_Sales": "sum"})
+    #     .reset_index()
+    # )
+
+    # top_pubs = top_pubs.sort_values(by="Global_Sales", ascending=False).head(5)
+
+    # st.subheader(":crown: Top Publishers")
+    # st.dataframe(
+    #     top_pubs.rename(columns={"Global_Sales": "Global Sales (milions)"})[
+    #         ["Publisher", "Global Sales (milions)"]
+    #     ]
+
+    # )
+
+    top_pubs = df.groupby(by="Publisher").agg({"Global_Sales": "sum"}).reset_index()
+
+    top_pubs = top_pubs.sort_values(by="Global_Sales", ascending=False).head(5)
+
+    fig = px.bar(
+        top_pubs,
+        y="Publisher",
+        x="Global_Sales",
+        labels={"Global_Sales": "Global Sales (milions)"},
+        text=top_pubs["Global_Sales"].apply(
+            lambda y: f"{y: .1f}"
+        ),  # TODO: think of better way to show numbers in millions?
+        template="plotly_dark",
     )
 
-    top_pubs = top_pubs.sort_values(by="Rank").head(5)
+    fig.update_yaxes(title_text="")
+    fig.update_layout(yaxis={"categoryorder": "total ascending"})
 
-    st.subheader(":crown: Top Publishers")
-    st.dataframe(
-        top_pubs.rename(columns={"Global_Sales": "Global Sales (milions)"})[
-            ["Rank", "Publisher", "Global Sales (milions)"]
-        ],
-        hide_index=True,
-    )
-
-
-# fig = px.bar(
-#     top_5,
-#     x="Name",
-#     y="Global_Sales",
-#     labels={"Global_Sales": "Global Sales (milions)", "Name": "Game"},
-# )
-# st.plotly_chart(fig)
+    st.plotly_chart(fig)
