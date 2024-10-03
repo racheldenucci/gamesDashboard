@@ -34,8 +34,6 @@ with col1:
 
     top_gen = df.groupby(by="Genre").agg({"Global_Sales": "sum"}).reset_index()
 
-    # top_gen = top_gen.sort_values(by="Global_Sales").head(5)
-
     st.subheader("Genres")
     fig = px.pie(
         top_gen,
@@ -99,3 +97,21 @@ fig = px.line(
 )
 fig.update_xaxes(title_text="")
 st.plotly_chart(fig)
+
+
+region = st.selectbox('Select a Region', options=['North America', 'Japan', 'Europe', 'Others'])
+if(region == 'North America'):
+    opt = 'NA_Sales'
+elif(region == 'Japan'):
+    opt = 'JP_Sales'
+elif(region=='Europe'):
+    opt='EU_Sales'
+elif(region=='Others'):
+    opt='Other_Sales'
+
+top_pubs_filter = df.groupby(by='Publisher').agg({opt: 'sum'}).reset_index()
+top_pubs_filter = top_pubs_filter.sort_values(by=opt, ascending=False).head(5)
+
+fig = px.bar(top_pubs_filter, x='Publisher', y=opt, template='simple_white', labels={opt:region, 'Publisher':' '})
+st.plotly_chart(fig)
+
