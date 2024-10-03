@@ -32,15 +32,17 @@ with col1:
         )[["Game", "Publisher", "Global Sales (milions)"]],
     )
 
+    top_gen = df.groupby(by="Genre").agg({"Global_Sales": "sum"}).reset_index()
 
-    top_gen = (
-        df.groupby(by="Genre").agg({"Global_Sales": "sum"}).reset_index()
+    # top_gen = top_gen.sort_values(by="Global_Sales").head(5)
+
+    st.subheader("Genres")
+    fig = px.pie(
+        top_gen,
+        values="Global_Sales",
+        names="Genre",
+        color_discrete_sequence=px.colors.sequential.ice,
     )
-
-    #top_gen = top_gen.sort_values(by="Global_Sales").head(5)
-
-    st.subheader('Genres')
-    fig = px.pie(top_gen, values='Global_Sales', names='Genre', color_discrete_sequence=px.colors.sequential.ice)
     st.plotly_chart(fig)
 
 
@@ -61,7 +63,7 @@ with col2:
 
     # )
 
-    st.subheader('Sales by Publisher')
+    st.subheader("Sales by Publisher")
 
     top_pubs = df.groupby(by="Publisher").agg({"Global_Sales": "sum"}).reset_index()
 
@@ -82,3 +84,18 @@ with col2:
     fig.update_layout(yaxis={"categoryorder": "total ascending"})
 
     st.plotly_chart(fig)
+
+
+platf_evo = df.groupby(["Year", "Platform"]).agg({"Global_Sales": "sum"}).reset_index()
+
+fig = px.line(
+    platf_evo,
+    x="Year",
+    y="Global_Sales",
+    color="Platform",
+    labels={"Global_Sales": "Global Sales (millions)"},
+    template='simple_white',
+    color_discrete_sequence=px.colors.qualitative.Light24_r
+)
+fig.update_xaxes(title_text="")
+st.plotly_chart(fig)
