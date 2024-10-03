@@ -32,11 +32,16 @@ with col1:
         )[["Game", "Publisher", "Global Sales (milions)"]],
     )
 
+
     top_gen = (
-        df.groupby(by="Genre").agg({"Rank": "min", "Global_Sales": "sum"}).reset_index()
+        df.groupby(by="Genre").agg({"Global_Sales": "sum"}).reset_index()
     )
 
-    top_gen = top_gen.sort_values(by="Rank").head(5)
+    #top_gen = top_gen.sort_values(by="Global_Sales").head(5)
+
+    st.subheader('Genres')
+    fig = px.pie(top_gen, values='Global_Sales', names='Genre', color_discrete_sequence=px.colors.sequential.ice)
+    st.plotly_chart(fig)
 
 
 with col2:
@@ -55,6 +60,8 @@ with col2:
     #     ]
 
     # )
+
+    st.subheader('Sales by Publisher')
 
     top_pubs = df.groupby(by="Publisher").agg({"Global_Sales": "sum"}).reset_index()
 
