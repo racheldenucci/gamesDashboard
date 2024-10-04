@@ -46,7 +46,7 @@ with col1:
     )
     st.plotly_chart(fig)
 
-regions=["NA_Sales", "JP_Sales", "EU_Sales", "Other_Sales"]
+regions = ["NA_Sales", "JP_Sales", "EU_Sales", "Other_Sales"]
 
 with col2:
     st.subheader("Sales by Publisher")
@@ -58,42 +58,42 @@ with col2:
         top_pubs,
         y="Publisher",
         x="Global_Sales",
-        labels={"Global_Sales": "Global Sales (milions)"},
+        labels={"Global_Sales": "Global Sales", "Publisher": ""},
         text=top_pubs["Global_Sales"].apply(
-            lambda y: f"{y: .1f}"
+            lambda y: f"{y: .1f}M"
         ),  # TODO: think of better way to show numbers in millions?
         template="plotly_dark",
     )
 
-    fig.update_yaxes(title_text="")
     fig.update_layout(yaxis={"categoryorder": "total ascending"})
 
     st.plotly_chart(fig)
 
-    #map not good because the data isnt great
-    gen_region_sales = df.groupby(by='Genre')[regions].sum().reset_index()
+    # map not good because the data isnt great
+    gen_region_sales = df.groupby(by="Genre")[regions].sum().reset_index()
 
     top_gens = {}
     for region in regions:
         top_g = gen_region_sales.loc[gen_region_sales[region].idxmax()]
-        top_gens[region] = {
-            'Genre' : top_g['Genre'],
-            'Sales' : top_g[region]
-        }
-    top_gens_df = pd.DataFrame(top_gens).T.reset_index().rename(columns={'index':'Region', 'Sales':'Top Sales'})
+        top_gens[region] = {"Genre": top_g["Genre"], "Sales": top_g[region]}
+    top_gens_df = (
+        pd.DataFrame(top_gens)
+        .T.reset_index()
+        .rename(columns={"index": "Region", "Sales": "Top Sales"})
+    )
 
     reg_mapping = {
-        'NA_Sales':'United States',
-        'EU_Sales':'Germany',
-        'JP_Sales':'Japan',
-        'Other_Sales':'Brazil'
+        "NA_Sales": "United States",
+        "EU_Sales": "Germany",
+        "JP_Sales": "Japan",
+        "Other_Sales": "Brazil",
     }
 
-    top_gens_df['Region'] = top_gens_df['Region'].map(reg_mapping)
+    top_gens_df["Region"] = top_gens_df["Region"].map(reg_mapping)
     fig = px.choropleth(
-        top_gens_df, locations='Region', color='Genre', locationmode= 'country names'
+        top_gens_df, locations="Region", color="Genre", locationmode="country names"
     )
-    #st.plotly_chart(fig)
+    # st.plotly_chart(fig)
 
 
 platf_evo = df.groupby(["Year", "Platform"]).agg({"Global_Sales": "sum"}).reset_index()
@@ -103,9 +103,9 @@ fig = px.line(
     x="Year",
     y="Global_Sales",
     color="Platform",
-    labels={"Global_Sales": "Global Sales (millions)", 'Year':''},
+    labels={"Global_Sales": "Global Sales (millions)", "Year": ""},
     template="simple_white",
-    line_shape='spline',
+    line_shape="spline",
     color_discrete_sequence=px.colors.qualitative.Light24_r,
 )
 
