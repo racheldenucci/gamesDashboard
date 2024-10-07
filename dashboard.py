@@ -177,3 +177,17 @@ with col2:
         text=top_pubs_filter[opt].apply(lambda y: f"{y: .1f} M"),
     )
     st.plotly_chart(fig)
+
+
+# PUBLISHER SALES THROUGH TIME
+pub_evo = df.groupby(["Year", "Publisher"]).agg({"Global_Sales": "sum"}).reset_index()
+fig = px.line(
+    pub_evo,
+    y="Global_Sales",
+    x="Year",
+    color="Publisher",
+    template="simple_white",
+    line_shape="spline",
+)
+
+st.plotly_chart(fig)
