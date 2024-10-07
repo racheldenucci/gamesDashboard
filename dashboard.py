@@ -35,16 +35,24 @@ with col1:
     )
 
     st.subheader("")
-    top_gen = df.groupby(by="Genre").agg({"Global_Sales": "sum"}).reset_index()
-
-    st.subheader("Sales by Genres")
-    fig = px.pie(
-        top_gen,
-        values="Global_Sales",
-        names="Genre",
-        color_discrete_sequence=px.colors.sequential.ice,
+    # TOP GAMES PER PLATFORM
+    plat = st.selectbox("Select a Platform", options=df["Platform"].unique())
+    top_5_plat = (
+        df[df["Platform"] == plat]
+        .sort_values(by="Global_Sales", ascending=False)
+        .head(5)
     )
+
+    fig = px.bar(
+        top_5_plat,
+        x="Global_Sales",
+        y="Name",
+        labels={"Global_Sales": "Sales", "Name": ""},
+        template="plotly_dark",
+    )
+    fig.update_layout(yaxis={"categoryorder": "total ascending"})
     st.plotly_chart(fig)
+    
 
 regions = ["NA_Sales", "JP_Sales", "EU_Sales", "Other_Sales"]
 
@@ -95,7 +103,19 @@ with col2:
     )
     # st.plotly_chart(fig)
 
+    top_gen = df.groupby(by="Genre").agg({"Global_Sales": "sum"}).reset_index()
 
+    st.subheader("Sales by Genres")
+    fig = px.pie(
+        top_gen,
+        values="Global_Sales",
+        names="Genre",
+        color_discrete_sequence=px.colors.sequential.ice,
+    )
+    st.plotly_chart(fig)
+
+
+# PLATFORM GAME SALES THROUGH TIME
 platf_evo = df.groupby(["Year", "Platform"]).agg({"Global_Sales": "sum"}).reset_index()
 
 fig = px.line(
