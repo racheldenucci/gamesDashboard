@@ -171,8 +171,9 @@ with col2:
         top_pubs_filter,
         x="Publisher",
         y=opt,
-        title="Publisher Sales",
+        title="Sales by Publisher",
         template="plotly_dark",
         labels={opt: f"{region} Sales", "Publisher": " "},
+        text=top_pubs_filter[opt].apply(lambda y: f"{y: .1f} M"),
     )
     st.plotly_chart(fig)
