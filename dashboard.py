@@ -45,12 +45,12 @@ with col1:
 
     fig = px.bar(
         top_5_plat,
-        x="Global_Sales",
-        y="Name",
+        y="Global_Sales",
+        x="Name",
         labels={"Global_Sales": "Sales", "Name": ""},
         template="plotly_dark",
     )
-    fig.update_layout(yaxis={"categoryorder": "total ascending"})
+    
     st.plotly_chart(fig)
     
 
