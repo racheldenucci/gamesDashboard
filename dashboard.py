@@ -34,8 +34,10 @@ with col1:
         ]
     )
 
-    st.subheader("")
+    st.header("")
+
     # TOP GAMES PER PLATFORM
+    st.subheader("Top Sales per Platform")
     plat = st.selectbox("Select a Platform", options=df["Platform"].unique())
     top_5_plat = (
         df[df["Platform"] == plat]
@@ -49,10 +51,11 @@ with col1:
         x="Name",
         labels={"Global_Sales": "Sales", "Name": ""},
         template="plotly_dark",
+        text=top_5_plat["Global_Sales"].apply(lambda y: f"{y: .1f}M"),
     )
-    
+
     st.plotly_chart(fig)
-    
+
 
 regions = ["NA_Sales", "JP_Sales", "EU_Sales", "Other_Sales"]
 
@@ -103,6 +106,7 @@ with col2:
     )
     # st.plotly_chart(fig)
 
+    st.subheader("")
     top_gen = df.groupby(by="Genre").agg({"Global_Sales": "sum"}).reset_index()
 
     st.subheader("Sales by Genres")
