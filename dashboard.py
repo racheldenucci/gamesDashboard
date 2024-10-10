@@ -8,6 +8,7 @@ import os
 st.set_page_config(
     page_icon=":video_game:", page_title="Video Game Sales Dashboard", layout="wide"
 )
+
 st.title(":video_game: Video Game Sales")
 st.title("")
 
