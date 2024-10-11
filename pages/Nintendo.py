@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly_express as px
+from streamlit_plotly_events import plotly_events
 
 st.set_page_config(page_icon=":video_game:", layout="wide")
 
@@ -72,7 +73,7 @@ with c1:
     )
     top_5 = top_5.sort_values("Global_Sales", ascending=False).head(5)
 
-    fig = px.bar(
+    top_5_fig = px.bar(
         top_5,
         x="Name",
         y="Global_Sales",
@@ -83,7 +84,13 @@ with c1:
         hover_data=["Genre", "Year"],
         text=top_5["Global_Sales"].apply(lambda y: f"{y:.1f} M"),
     )
-    fig.update_yaxes(showgrid=False)
-    fig.update_layout(hoverlabel=dict(bgcolor="orchid"))
+    top_5_fig.update_yaxes(showgrid=False)
+    top_5_fig.update_layout(hoverlabel=dict(bgcolor="orchid"))
 
-    st.plotly_chart(fig)
+    selected_bar = st.plotly_chart(top_5_fig, on_select="rerun")
+    st.json(selected_bar)
+    bar_filt = top_5.iloc[selected_bar["selection"]["point_indices"]]
+
+with c2:
+    st.dataframe(bar_filt)
+    
