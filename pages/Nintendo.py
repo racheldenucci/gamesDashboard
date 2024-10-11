@@ -33,19 +33,6 @@ else:
 #     st.write(f"showing games from {start}")
 # else:
 #     st.write(f"showing games from {start} to {end}")
-
-sales_evo = filt_df.groupby("Year").agg({"Global_Sales": "sum"}).reset_index()
-fig = px.line(
-    sales_evo,
-    x="Year",
-    y="Global_Sales",
-    labels={"Year": "", "Global_Sales": "Global Sales (millions)"},
-    template="simple_white",
-    markers=True,
-)
-st.plotly_chart(fig)
-
-
 sales_start_year = df[df["Year"] == start]["Global_Sales"].sum()
 sales_end_year = df[df["Year"] == end]["Global_Sales"].sum()
 
@@ -57,3 +44,19 @@ with c2:
     st.metric(
         f"Sales in {end}", value=f"{sales_end_year:.1f} M", delta=f"{sales_var:.2f}%"
     )
+
+
+sales_evo = filt_df.groupby("Year").agg({"Global_Sales": "sum"}).reset_index()
+fig = px.line(
+    sales_evo,
+    x="Year",
+    y="Global_Sales",
+    labels={"Year": "", "Global_Sales": "Global Sales (millions)"},
+    template="simple_white",
+    markers=True,
+    color_discrete_sequence=['orchid']
+)
+fig.update_traces(hovertemplate=None)
+fig.update_layout(hovermode='x unified')
+
+st.plotly_chart(fig)
