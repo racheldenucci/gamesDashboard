@@ -97,6 +97,8 @@ with c1:
 
         except KeyError:
             st.error(f"Sorry, something went wrong")
+        except IndexError:
+            st.write("Select a game to see details")
     else:
         st.write("please select a game")
 
