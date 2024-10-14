@@ -87,10 +87,20 @@ with c1:
     top_5_fig.update_yaxes(showgrid=False)
     top_5_fig.update_layout(hoverlabel=dict(bgcolor="orchid"))
 
-    selected_bar = st.plotly_chart(top_5_fig, on_select="rerun")
-    st.json(selected_bar)
-    bar_filt = top_5.iloc[selected_bar["selection"]["point_indices"]]
+with c1:
+    evt_data = st.plotly_chart(top_5_fig, on_select="rerun")
+
+    if evt_data:
+        try:
+            game = evt_data["selection"]["points"][0]["hovertext"]
+
+        except KeyError:
+            st.error(f"Sorry, something went wrong")
+        #else:
+            #st.write(f"{game}")
+    else:
+        st.write("please select a game")
 
 with c2:
-    st.dataframe(bar_filt)
+    game_sales = filt_df[filt_df["Name"] == game]
     
