@@ -66,6 +66,8 @@ st.plotly_chart(fig)
 # TOP 5 GAMES
 c1, c2 = st.columns(2)
 with c1:
+    st.subheader(f'Best Sellers')
+    st.write(f'({start} - {end})')
     top_5 = (
         filt_df.groupby("Name")
         .agg({"Global_Sales": "sum", "Genre": "first", "Year": "first"})
@@ -87,7 +89,6 @@ with c1:
     top_5_fig.update_yaxes(showgrid=False)
     top_5_fig.update_layout(hoverlabel=dict(bgcolor="orchid"))
 
-with c1:
     evt_data = st.plotly_chart(top_5_fig, on_select="rerun")
 
     if evt_data:
@@ -96,11 +97,27 @@ with c1:
 
         except KeyError:
             st.error(f"Sorry, something went wrong")
-        #else:
-            #st.write(f"{game}")
     else:
         st.write("please select a game")
 
 with c2:
-    game_sales = filt_df[filt_df["Name"] == game]
-    
+    st.subheader(f'{game} Sales')
+    st.write(f'({start} - {end})')
+    game_df = filt_df[filt_df["Name"] == game].iloc[0]
+    region_sales = pd.DataFrame({
+        'Region':['North America', 'Europe', 'Japan', 'Others'],
+        'Sales': [game_df['NA_Sales'], game_df['EU_Sales'], game_df['JP_Sales'], game_df['Other_Sales']]
+    })
+
+    fig = px.bar(
+        region_sales,
+        x='Region',
+        y='Sales',
+        labels={
+            'Region':''
+        },
+        template='presentation',
+        color_discrete_sequence=['violet'],
+        text=region_sales['Sales'].apply(lambda y: f'{y:.1f} M')
+    )
+    st.plotly_chart(fig)
