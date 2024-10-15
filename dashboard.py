@@ -189,6 +189,7 @@ fig = px.line(
     color="Publisher",
     template="simple_white",
     line_shape="spline",
+    labels={"Year": "", "Global_Sales": "Global Sales"},
 )
 
 st.plotly_chart(fig)
