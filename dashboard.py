@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly_express as px
-import plotly.graph_objects as go
-import os
 
 st.set_page_config(
     page_icon=":video_game:", page_title="Video Game Sales Dashboard", layout="wide"
@@ -58,7 +56,6 @@ with col1:
     st.plotly_chart(fig)
 
 
-regions = ["NA_Sales", "JP_Sales", "EU_Sales", "Other_Sales"]
 
 with col2:
     st.subheader("Sales by Publisher")
@@ -113,6 +110,7 @@ st.plotly_chart(fig)
 
 col1, col2 = st.columns(2)
 
+#BEST SELLERS PER REGION
 with col1:
     region = st.selectbox(
         "Select a Region", options=["North America", "Japan", "Europe", "Others"]
@@ -137,6 +135,7 @@ with col1:
 
     st.dataframe(top_5_filter.rename(columns={"Name": "Game", opt: f"{region} Sales"}))
 
+#BEST PUBLSIHERS BY REGION
 with col2:
     st.header("")
     top_pubs_filter = df.groupby(by="Publisher").agg({opt: "sum"}).reset_index()
@@ -153,6 +152,8 @@ with col2:
     )
 
     evt_data = st.plotly_chart(fig, on_select="rerun")
+
+#CROSSFILTER REGION-PUBLISHER-SALES
 if evt_data:
     try:
         publisher = evt_data["selection"]["points"][0]["x"]
@@ -165,8 +166,9 @@ if evt_data:
             .agg({opt: "sum"})
             .reset_index()
         )
-        #pub_region_sales_df
+        #pub_region_sales_df    #debugging
 
+        #get year with most sales and total sales
         high_year = pub_region_sales_df.loc[pub_region_sales_df[opt].idxmax()]["Year"]
         high_value = pub_region_sales_df[opt].max()
 
@@ -177,7 +179,6 @@ if evt_data:
             labels={opt: f"{region} Sales", "Year": ""},
             template="plotly_dark",
             markers=True,
-            hover_name=opt,
         )
         
         fig.add_annotation(
@@ -189,7 +190,7 @@ if evt_data:
             ay=-20,
         )
 
-        fig.update_layout(hoverlabel=dict(bgcolor='#636EFA'),font=dict(size=15))
+        fig.update_layout(hoverlabel=dict(bgcolor='#636EFA'),font=dict(size=15), hovermode='y unified')
 
         st.plotly_chart(fig)
     except KeyError:
@@ -197,7 +198,3 @@ if evt_data:
     except IndexError:
         with col2:
             st.write("Select a Publisher to see more details")
-
-
-# PUBLISHER SALES THROUGH TIME
-# pub_evo = df.groupby(["Year", "Publisher"]).agg({"Global_Sales": "sum"}).reset_index()

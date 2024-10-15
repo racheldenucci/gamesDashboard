@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly_express as px
-from streamlit_plotly_events import plotly_events
 
 st.set_page_config(page_icon=":video_game:", layout="wide")
 
@@ -123,4 +122,3 @@ if evt_data:
     
 else:
     st.write("please select a game")
-
