@@ -81,32 +81,6 @@ with col2:
 
     st.plotly_chart(fig)
 
-    # map not good because the data isnt great
-    gen_region_sales = df.groupby(by="Genre")[regions].sum().reset_index()
-
-    top_gens = {}
-    for region in regions:
-        top_g = gen_region_sales.loc[gen_region_sales[region].idxmax()]
-        top_gens[region] = {"Genre": top_g["Genre"], "Sales": top_g[region]}
-    top_gens_df = (
-        pd.DataFrame(top_gens)
-        .T.reset_index()
-        .rename(columns={"index": "Region", "Sales": "Top Sales"})
-    )
-
-    reg_mapping = {
-        "NA_Sales": "United States",
-        "EU_Sales": "Germany",
-        "JP_Sales": "Japan",
-        "Other_Sales": "Brazil",
-    }
-
-    top_gens_df["Region"] = top_gens_df["Region"].map(reg_mapping)
-    fig = px.choropleth(
-        top_gens_df, locations="Region", color="Genre", locationmode="country names"
-    )
-    # st.plotly_chart(fig)
-
     st.subheader("")
     top_gen = df.groupby(by="Genre").agg({"Global_Sales": "sum"}).reset_index()
 
@@ -155,10 +129,10 @@ with col1:
     st.subheader(f"Best Selling in {region}")
     st.write("Sales (millions of copies)")
 
-    top_5_filter = (
+    top_5_reg_filt = (
         df.groupby(by="Name").agg({opt: "sum", "Publisher": "first"}).reset_index()
     )
-    top_5_filter = top_5_filter.sort_values(by=opt, ascending=False).head(5)
+    top_5_filter = top_5_reg_filt.sort_values(by=opt, ascending=False).head(5)
     top_5_filter.index = np.arange(1, len(top_5_filter) + 1)
 
     st.dataframe(top_5_filter.rename(columns={"Name": "Game", opt: f"{region} Sales"}))
@@ -177,28 +151,53 @@ with col2:
         labels={opt: f"{region} Sales", "Publisher": " "},
         text=top_pubs_filter[opt].apply(lambda y: f"{y: .1f} M"),
     )
-    #st.plotly_chart(fig)
 
-    evt_data = st.plotly_chart(fig, on_select='rerun')
-    if evt_data:
-        try:
-            publisher = evt_data['selection']['points'][0]['x']
-        except KeyError:
-            st.error("something went wrong")
-        except IndexError:
-            st.write('select')
+    evt_data = st.plotly_chart(fig, on_select="rerun")
+if evt_data:
+    try:
+        publisher = evt_data["selection"]["points"][0]["x"]
+
+        st.subheader(f"{publisher} sales in {region}")
+
+        pub_region_sales_df = df[df["Publisher"] == publisher]
+        pub_region_sales_df = (
+            pub_region_sales_df.groupby(["Year", "Publisher"])
+            .agg({opt: "sum"})
+            .reset_index()
+        )
+        #pub_region_sales_df
+
+        high_year = pub_region_sales_df.loc[pub_region_sales_df[opt].idxmax()]["Year"]
+        high_value = pub_region_sales_df[opt].max()
+
+        fig = px.line(
+            pub_region_sales_df,
+            y=opt,
+            x="Year",
+            labels={opt: f"{region} Sales", "Year": ""},
+            template="plotly_dark",
+            markers=True,
+            hover_name=opt,
+        )
+        
+        fig.add_annotation(
+            x=high_year,
+            y=high_value,
+            text=f"Sales Peak: {high_value: .1f} M ({high_year:.0f})",
+            arrowhead=2,
+            ax=50,
+            ay=-20,
+        )
+
+        fig.update_layout(hoverlabel=dict(bgcolor='#636EFA'),font=dict(size=15))
+
+        st.plotly_chart(fig)
+    except KeyError:
+        st.error("something went wrong")
+    except IndexError:
+        with col2:
+            st.write("Select a Publisher to see more details")
 
 
 # PUBLISHER SALES THROUGH TIME
-pub_evo = df.groupby(["Year", "Publisher"]).agg({"Global_Sales": "sum"}).reset_index()
-fig = px.line(
-    pub_evo,
-    y="Global_Sales",
-    x="Year",
-    color="Publisher",
-    template="simple_white",
-    line_shape="spline",
-    labels={"Year": "", "Global_Sales": "Global Sales"},
-)
-
-st.plotly_chart(fig)
+# pub_evo = df.groupby(["Year", "Publisher"]).agg({"Global_Sales": "sum"}).reset_index()
