@@ -177,7 +177,16 @@ with col2:
         labels={opt: f"{region} Sales", "Publisher": " "},
         text=top_pubs_filter[opt].apply(lambda y: f"{y: .1f} M"),
     )
-    st.plotly_chart(fig)
+    #st.plotly_chart(fig)
+
+    evt_data = st.plotly_chart(fig, on_select='rerun')
+    if evt_data:
+        try:
+            publisher = evt_data['selection']['points'][0]['x']
+        except KeyError:
+            st.error("something went wrong")
+        except IndexError:
+            st.write('select')
 
 
 # PUBLISHER SALES THROUGH TIME

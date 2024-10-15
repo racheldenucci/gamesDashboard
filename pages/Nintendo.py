@@ -91,35 +91,36 @@ with c1:
 
     evt_data = st.plotly_chart(top_5_fig, on_select="rerun")
 
-    if evt_data:
-        try:
-            game = evt_data["selection"]["points"][0]["hovertext"]
+if evt_data:
+    try:
+        game = evt_data["selection"]["points"][0]["hovertext"]
 
-        except KeyError:
-            st.error(f"Sorry, something went wrong")
-        except IndexError:
-            st.write("Select a game to see details")
-    else:
-        st.write("please select a game")
+        with c2:
+            st.subheader(f'{game} Sales')
+            st.write(f'({start} - {end})')
+            game_df = filt_df[filt_df["Name"] == game].iloc[0]
+            region_sales = pd.DataFrame({
+                'Region':['North America', 'Europe', 'Japan', 'Others'],
+                'Sales': [game_df['NA_Sales'], game_df['EU_Sales'], game_df['JP_Sales'], game_df['Other_Sales']]
+            })
 
-with c2:
-    st.subheader(f'{game} Sales')
-    st.write(f'({start} - {end})')
-    game_df = filt_df[filt_df["Name"] == game].iloc[0]
-    region_sales = pd.DataFrame({
-        'Region':['North America', 'Europe', 'Japan', 'Others'],
-        'Sales': [game_df['NA_Sales'], game_df['EU_Sales'], game_df['JP_Sales'], game_df['Other_Sales']]
-    })
+            fig = px.bar(
+                region_sales,
+                x='Region',
+                y='Sales',
+                labels={
+                    'Region':''
+                },
+                template='presentation',
+                color_discrete_sequence=['violet'],
+                text=region_sales['Sales'].apply(lambda y: f'{y:.1f} M')
+            )
+            st.plotly_chart(fig)
+    except KeyError:
+        st.error("Sorry, something went wrong")
+    except IndexError:
+        st.write("Select a game to see details")
+    
+else:
+    st.write("please select a game")
 
-    fig = px.bar(
-        region_sales,
-        x='Region',
-        y='Sales',
-        labels={
-            'Region':''
-        },
-        template='presentation',
-        color_discrete_sequence=['violet'],
-        text=region_sales['Sales'].apply(lambda y: f'{y:.1f} M')
-    )
-    st.plotly_chart(fig)
